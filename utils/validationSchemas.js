@@ -21,4 +21,6 @@ const casoSchema = z.object({
   agente_id: z.string().uuid({ message: "Campo 'agente_id' deve ser um UUID válido" }),
 });
 
-module.exports = { agenteSchema, casoSchema };
+const idSchema = z.string().uuid();
+
+module.exports = { agenteSchema, casoSchema, idSchema };
