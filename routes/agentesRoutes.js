@@ -261,7 +261,12 @@ router.put(
  *                  type: string
  *                  example: []
  */
-router.patch('/agentes/:id', createPartialInputValidator(), validateRequest, updatePartialAgente);
+router.patch(
+    '/agentes/:id',
+    createPartialInputValidator(),
+    validateRequest,
+    agentesController.updatePartialAgente
+);
 
 /**
  * @openapi
