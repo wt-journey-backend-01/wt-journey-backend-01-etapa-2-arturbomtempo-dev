@@ -2,6 +2,7 @@ import express from 'express';
 import * as agentesController from '../controllers/agentesController.js';
 import validateRequest from '../utils/validateRequest.js';
 import * as agentesValidation from '../utils/agentesValidation.js';
+import { createPartialInputValidator } from '../utils/casosValidation.js';
 
 const router = express.Router();
 
@@ -260,12 +261,7 @@ router.put(
  *                  type: string
  *                  example: []
  */
-router.patch(
-    '/agentes/:id',
-    agentesValidation.createPartialInputValidator(),
-    validateRequest,
-    agentesController.updatePartialAgente
-);
+router.patch('/agentes/:id', createPartialInputValidator(), validateRequest, updatePartialAgente);
 
 /**
  * @openapi
