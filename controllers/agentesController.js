@@ -1,5 +1,5 @@
-const agentesRepository = require('../repositories/agentesRepository');
-const AppError = require('../utils/appError');
+import * as agentesRepository from '../repositories/agentesRepository.js';
+import AppError from '../utils/appError.js';
 
 function getAllAgentes(req, res) {
     const cargo = req.query.cargo;
@@ -101,7 +101,7 @@ function deleteAgente(req, res) {
     res.status(204).send();
 }
 
-module.exports = {
+export {
     getAllAgentes,
     getAgenteById,
     createAgente,

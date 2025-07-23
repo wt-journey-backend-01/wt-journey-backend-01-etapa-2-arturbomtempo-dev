@@ -1,6 +1,6 @@
-const casosRepository = require('../repositories/casosRepository');
-const agentesRepository = require('../repositories/agentesRepository');
-const AppError = require('../utils/appError');
+import * as casosRepository from '../repositories/casosRepository.js';
+import * as agentesRepository from '../repositories/agentesRepository.js';
+import AppError from '../utils/appError.js';
 
 function getAllCasos(req, res) {
     const agenteId = req.query.agente_id;
@@ -140,7 +140,7 @@ function filter(req, res) {
     res.json(casos);
 }
 
-module.exports = {
+export {
     getAllCasos,
     getCasosById,
     createCaso,

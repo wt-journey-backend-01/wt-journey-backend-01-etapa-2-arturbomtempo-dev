@@ -1,8 +1,9 @@
-const express = require('express');
+import express from 'express';
+import * as agentesController from '../controllers/agentesController.js';
+import validateRequest from '../utils/validateRequest.js';
+import * as agentesValidation from '../utils/agentesValidation.js';
+
 const router = express.Router();
-const agentesController = require('../controllers/agentesController');
-const validateRequest = require('../utils/validateRequest');
-const agentesValidation = require('../utils/agentesValidation');
 
 /**
  * @openapi
@@ -326,4 +327,4 @@ router.patch(
  */
 router.delete('/agentes/:id', agentesController.deleteAgente);
 
-module.exports = router;
+export default router;

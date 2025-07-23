@@ -1,4 +1,4 @@
-const { body } = require('express-validator');
+import { body } from 'express-validator';
 
 function createInputValidator() {
     return [
@@ -27,7 +27,7 @@ function createPartialInputValidator() {
     ];
 }
 
-module.exports = {
+export {
     createInputValidator,
     createPartialInputValidator,
 };

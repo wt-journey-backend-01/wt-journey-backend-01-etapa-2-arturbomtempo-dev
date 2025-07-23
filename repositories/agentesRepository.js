@@ -1,4 +1,4 @@
-const { v4: uuidv4 } = require('uuid');
+import { v4 as uuidv4 } from 'uuid';
 
 const agentes = [];
 
@@ -68,7 +68,7 @@ function getByCargoAndSort(cargo, desc) {
     return agentesFiltrados;
 }
 
-module.exports = {
+export {
     findAll,
     findById,
     create,

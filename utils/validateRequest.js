@@ -1,5 +1,5 @@
-const { validationResult } = require('express-validator');
-const AppError = require('../utils/appError');
+import { validationResult } from 'express-validator';
+import AppError from './appError.js';
 
 function validateRequest(req, res, next) {
     const errors = validationResult(req);
@@ -9,4 +9,4 @@ function validateRequest(req, res, next) {
     next();
 }
 
-module.exports = validateRequest;
+export default validateRequest;

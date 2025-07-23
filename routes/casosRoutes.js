@@ -1,8 +1,9 @@
-const express = require('express');
+import express from 'express';
+import * as casosController from '../controllers/casosController.js';
+import validateRequest from '../utils/validateRequest.js';
+import * as casosValidation from '../utils/casosValidation.js';
+
 const router = express.Router();
-const casosController = require('../controllers/casosController');
-const validateRequest = require('../utils/validateRequest');
-const casosValidation = require('../utils/casosValidation');
 
 /**
  * @openapi
@@ -446,4 +447,4 @@ router.patch(
  */
 router.delete('/casos/:id', casosController.deleteCaso);
 
-module.exports = router;
+export default router;
