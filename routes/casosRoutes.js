@@ -3,7 +3,6 @@ const router = express.Router();
 const casosController = require('../controllers/casosController');
 const validateRequest = require('../utils/validateRequest');
 const casosValidation = require('../utils/casosValidation');
-const { validateUUIDParam } = require('../utils/paramValidation');
 
 /**
  * @openapi
@@ -105,7 +104,7 @@ router.get('/casos/search', casosController.filter);
  *                  type: string
  *                  example: []
  */
-router.get('/casos/:caso_id/agente', validateUUIDParam('caso_id'), validateRequest, casosController.getAgenteByCasoId);
+router.get('/casos/:caso_id/agente', casosController.getAgenteByCasoId);
 
 /**
  * @openapi
@@ -165,7 +164,7 @@ router.get('/casos/:caso_id/agente', validateUUIDParam('caso_id'), validateReque
  *                  type: string
  *                  example: []
  */
-router.get('/casos/:id', validateUUIDParam('id'), validateRequest, casosController.getCasosById);
+router.get('/casos/:id', casosController.getCasosById);
 
 /**
  * @openapi
@@ -313,7 +312,6 @@ router.post(
  */
 router.put(
     '/casos/:id',
-    validateUUIDParam('id'),
     casosValidation.createInputValidator(),
     validateRequest,
     casosController.updateCaso
@@ -383,7 +381,6 @@ router.put(
  */
 router.patch(
     '/casos/:id',
-    validateUUIDParam('id'),
     casosValidation.createPartialInputValidator(),
     validateRequest,
     casosController.updatePartialCaso
@@ -447,6 +444,6 @@ router.patch(
  *                  type: string
  *                  example: []
  */
-router.delete('/casos/:id', validateUUIDParam('id'), validateRequest, casosController.deleteCaso);
+router.delete('/casos/:id', casosController.deleteCaso);
 
 module.exports = router;

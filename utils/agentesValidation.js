@@ -11,38 +11,20 @@ const futureDateValidation = (value) => {
 
 function createInputValidator() {
     return [
-        body('nome')
-            .notEmpty()
-            .withMessage('O nome é obrigatório')
-            .isString()
-            .withMessage('O nome deve ser uma string'),
+        body('nome').notEmpty().withMessage('O nome é obrigatório'),
         body('dataDeIncorporacao')
             .notEmpty()
             .withMessage('A data de incorporação é obrigatória')
             .matches(/^\d{4}-\d{2}-\d{2}$/)
             .withMessage('A data de incorporação deve estar no formato YYYY-MM-DD')
             .custom(futureDateValidation),
-        body('cargo')
-            .notEmpty()
-            .withMessage('O cargo é obrigatório')
-            .isString()
-            .withMessage('O cargo deve ser uma string'),
-        body('id')
-            .optional()
-            .custom(() => {
-                throw new Error('O id não pode ser fornecido');
-            }),
+        body('cargo').notEmpty().withMessage('O cargo é obrigatório'),
     ];
 }
 
 function createPartialInputValidator() {
     return [
-        body('nome')
-            .optional()
-            .notEmpty()
-            .withMessage('O nome não pode ser vazio')
-            .isString()
-            .withMessage('O nome deve ser uma string'),
+        body('nome').optional().notEmpty().withMessage('O nome não pode ser vazio'),
         body('dataDeIncorporacao')
             .optional()
             .notEmpty()
@@ -50,17 +32,7 @@ function createPartialInputValidator() {
             .matches(/^\d{4}-\d{2}-\d{2}$/)
             .withMessage('A data de incorporação deve estar no formato YYYY-MM-DD')
             .custom(futureDateValidation),
-        body('cargo')
-            .optional()
-            .notEmpty()
-            .withMessage('O cargo não pode ser vazio')
-            .isString()
-            .withMessage('O cargo deve ser uma string'),
-        body('id')
-            .optional()
-            .custom(() => {
-                throw new Error('O id não pode ser atualizado');
-            }),
+        body('cargo').optional().notEmpty().withMessage('O cargo não pode ser vazio'),
     ];
 }
 

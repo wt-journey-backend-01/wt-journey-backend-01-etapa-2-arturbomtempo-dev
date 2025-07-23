@@ -82,33 +82,6 @@ function updatePartialAgente(req, res) {
         throw new AppError(400, 'Parâmetros inválidos', ['O id não pode ser atualizado']);
     }
 
-    // Validações adicionais para garantir que os dados sejam válidos
-    const invalidFields = [];
-    
-    if (req.body.nome !== undefined && (typeof req.body.nome !== 'string' || req.body.nome.trim() === '')) {
-        invalidFields.push('O nome deve ser uma string não vazia');
-    }
-    
-    if (req.body.cargo !== undefined && (typeof req.body.cargo !== 'string' || req.body.cargo.trim() === '')) {
-        invalidFields.push('O cargo deve ser uma string não vazia');
-    }
-    
-    if (req.body.dataDeIncorporacao !== undefined) {
-        if (typeof req.body.dataDeIncorporacao !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(req.body.dataDeIncorporacao)) {
-            invalidFields.push('A data de incorporação deve estar no formato YYYY-MM-DD');
-        } else {
-            const inputDate = new Date(req.body.dataDeIncorporacao);
-            const now = new Date();
-            if (inputDate > now) {
-                invalidFields.push('A data não pode estar no futuro');
-            }
-        }
-    }
-    
-    if (invalidFields.length > 0) {
-        throw new AppError(400, 'Parâmetros inválidos', invalidFields);
-    }
-
     const agente = agentesRepository.findById(id);
     if (!agente) {
         throw new AppError(404, 'Nenhum agente encontrado para o id especificado');
@@ -124,10 +97,7 @@ function deleteAgente(req, res) {
     if (!agente) {
         throw new AppError(404, 'Nenhum agente encontrado para o id especificado');
     }
-    const deleted = agentesRepository.remove(id);
-    if (!deleted) {
-        throw new AppError(404, 'Nenhum agente encontrado para o id especificado');
-    }
+    agentesRepository.remove(id);
     res.status(204).send();
 }
 

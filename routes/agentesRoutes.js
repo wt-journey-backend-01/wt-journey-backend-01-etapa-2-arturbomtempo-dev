@@ -3,7 +3,6 @@ const router = express.Router();
 const agentesController = require('../controllers/agentesController');
 const validateRequest = require('../utils/validateRequest');
 const agentesValidation = require('../utils/agentesValidation');
-const { validateUUIDParam } = require('../utils/paramValidation');
 
 /**
  * @openapi
@@ -63,7 +62,7 @@ const { validateUUIDParam } = require('../utils/paramValidation');
  *                  type: string
  *                  example: []
  */
-router.get('/agentes/:id', validateUUIDParam('id'), validateRequest, agentesController.getAgenteById);
+router.get('/agentes/:id', agentesController.getAgenteById);
 
 /**
  * @openapi
@@ -193,7 +192,6 @@ router.post(
  */
 router.put(
     '/agentes/:id',
-    validateUUIDParam('id'),
     agentesValidation.createInputValidator(),
     validateRequest,
     agentesController.updateAgente
@@ -263,7 +261,6 @@ router.put(
  */
 router.patch(
     '/agentes/:id',
-    validateUUIDParam('id'),
     agentesValidation.createPartialInputValidator(),
     validateRequest,
     agentesController.updatePartialAgente
@@ -327,6 +324,6 @@ router.patch(
  *                  type: string
  *                  example: []
  */
-router.delete('/agentes/:id', validateUUIDParam('id'), validateRequest, agentesController.deleteAgente);
+router.delete('/agentes/:id', agentesController.deleteAgente);
 
 module.exports = router;
