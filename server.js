@@ -1,14 +1,14 @@
-const express = require("express");
-const dotenv = require("dotenv");
-const swagger = require("./docs/swagger");
+const express = require('express');
+const dotenv = require('dotenv');
+const swagger = require('./docs/swagger');
 
 dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-const casosRouter = require("./routes/casosRoutes");
-const agentesRouter = require("./routes/agentesRoutes");
-const errorHandler = require("./utils/errorHandler");
+const casosRouter = require('./routes/casosRoutes');
+const agentesRouter = require('./routes/agentesRoutes');
+const errorHandler = require('./utils/errorHandler');
 
 app.use(express.json());
 app.use(casosRouter);
@@ -19,5 +19,5 @@ swagger(app);
 app.use(errorHandler);
 
 app.listen(PORT, () => {
-  console.log(`Servidor do Departamento de Polícia rodando na porta:${PORT}`);
+    console.log(`Servidor do Departamento de Polícia rodando na porta:${PORT}`);
 });

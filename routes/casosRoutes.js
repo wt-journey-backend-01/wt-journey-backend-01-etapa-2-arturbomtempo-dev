@@ -1,8 +1,8 @@
-const express = require("express");
+const express = require('express');
 const router = express.Router();
-const casosController = require("../controllers/casosController");
-const validateRequest = require("../utils/validateRequest");
-const casosValidation = require("../utils/casosValidation");
+const casosController = require('../controllers/casosController');
+const validateRequest = require('../utils/validateRequest');
+const casosValidation = require('../utils/casosValidation');
 
 /**
  * @openapi
@@ -44,7 +44,7 @@ const casosValidation = require("../utils/casosValidation");
  *                  type: string
  *                  example: []
  */
-router.get("/casos/search", casosController.filter);
+router.get('/casos/search', casosController.filter);
 
 /**
  * @openapi
@@ -104,7 +104,7 @@ router.get("/casos/search", casosController.filter);
  *                  type: string
  *                  example: []
  */
-router.get("/casos/:caso_id/agente", casosController.getAgenteByCasoId);
+router.get('/casos/:caso_id/agente', casosController.getAgenteByCasoId);
 
 /**
  * @openapi
@@ -164,7 +164,7 @@ router.get("/casos/:caso_id/agente", casosController.getAgenteByCasoId);
  *                  type: string
  *                  example: []
  */
-router.get("/casos/:id", casosController.getCasosById);
+router.get('/casos/:id', casosController.getCasosById);
 
 /**
  * @openapi
@@ -183,7 +183,7 @@ router.get("/casos/:id", casosController.getCasosById);
  *              items:
  *                $ref: '#/components/schemas/Caso'
  */
-router.get("/casos", casosController.getAllCasos);
+router.get('/casos', casosController.getAllCasos);
 
 /**
  * @openapi
@@ -241,10 +241,10 @@ router.get("/casos", casosController.getAllCasos);
  *                  example: []
  */
 router.post(
-  "/casos",
-  casosValidation.createInputValidator(),
-  validateRequest,
-  casosController.createCaso
+    '/casos',
+    casosValidation.createInputValidator(),
+    validateRequest,
+    casosController.createCaso
 );
 
 /**
@@ -311,10 +311,10 @@ router.post(
  *                  example: []
  */
 router.put(
-  "/casos/:id",
-  casosValidation.createInputValidator(),
-  validateRequest,
-  casosController.updateCaso
+    '/casos/:id',
+    casosValidation.createInputValidator(),
+    validateRequest,
+    casosController.updateCaso
 );
 
 /**
@@ -380,10 +380,10 @@ router.put(
  *                  example: []
  */
 router.patch(
-  "/casos/:id",
-  casosValidation.createPartialInputValidator(),
-  validateRequest,
-  casosController.updatePartialCaso
+    '/casos/:id',
+    casosValidation.createPartialInputValidator(),
+    validateRequest,
+    casosController.updatePartialCaso
 );
 
 /**
@@ -444,6 +444,6 @@ router.patch(
  *                  type: string
  *                  example: []
  */
-router.delete("/casos/:id", casosController.deleteCaso);
+router.delete('/casos/:id', casosController.deleteCaso);
 
 module.exports = router;

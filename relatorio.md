@@ -41,27 +41,23 @@ No arquivo `controllers/agentesController.js`, seu método `updatePartialAgente`
 
 ```js
 function updatePartialAgente(req, res) {
-  const id = req.params.id;
+    const id = req.params.id;
 
-  if (!req.body || Object.keys(req.body).length === 0) {
-    throw new AppError(400, "Parâmetros inválidos", [
-      "O corpo da requisição está vazio",
-    ]);
-  }
+    if (!req.body || Object.keys(req.body).length === 0) {
+        throw new AppError(400, 'Parâmetros inválidos', ['O corpo da requisição está vazio']);
+    }
 
-  if (req.body.id) {
-    throw new AppError(400, "Parâmetros inválidos", [
-      "O id não pode ser atualizado",
-    ]);
-  }
+    if (req.body.id) {
+        throw new AppError(400, 'Parâmetros inválidos', ['O id não pode ser atualizado']);
+    }
 
-  const agente = agentesRepository.findById(id);
-  if (!agente) {
-    throw new AppError(404, "Nenhum agente encontrado para o id especificado");
-  }
+    const agente = agentesRepository.findById(id);
+    if (!agente) {
+        throw new AppError(404, 'Nenhum agente encontrado para o id especificado');
+    }
 
-  const updatedAgente = agentesRepository.updatePartial(id, req.body);
-  res.status(200).json(updatedAgente);
+    const updatedAgente = agentesRepository.updatePartial(id, req.body);
+    res.status(200).json(updatedAgente);
 }
 ```
 
@@ -75,10 +71,10 @@ Olhando para a rota que usa esse controller no arquivo `routes/agentesRoutes.js`
 
 ```js
 router.patch(
-  "/agentes/:id",
-  agentesValidation.createPartialInputValidator(),
-  validateRequest,
-  agentesController.updatePartialAgente
+    '/agentes/:id',
+    agentesValidation.createPartialInputValidator(),
+    validateRequest,
+    agentesController.updatePartialAgente
 );
 ```
 
@@ -100,18 +96,18 @@ Se o teste falha ao enviar um payload incorreto e não está retornando o status
 Você não enviou o código do `validateRequest.js`, mas esse middleware é essencial para capturar erros de validação do `express-validator`. Certifique-se que ele está assim, ou similar:
 
 ```js
-const { validationResult } = require("express-validator");
+const { validationResult } = require('express-validator');
 
 function validateRequest(req, res, next) {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return res.status(400).json({
-      status: 400,
-      message: "Parâmetros inválidos",
-      errors: errors.array().map(err => err.msg),
-    });
-  }
-  next();
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({
+            status: 400,
+            message: 'Parâmetros inválidos',
+            errors: errors.array().map((err) => err.msg),
+        });
+    }
+    next();
 }
 
 module.exports = validateRequest;
@@ -126,28 +122,22 @@ Se ele estiver diferente, pode ser a causa do problema.
 Esse middleware deve conter validações para os campos que podem ser atualizados parcialmente, por exemplo:
 
 ```js
-const { body } = require("express-validator");
+const { body } = require('express-validator');
 
 function createPartialInputValidator() {
-  return [
-    body("nome")
-      .optional()
-      .notEmpty()
-      .withMessage("O nome não pode ser vazio"),
-    body("cargo")
-      .optional()
-      .notEmpty()
-      .withMessage("O cargo não pode ser vazio"),
-    body("dataDeIncorporacao")
-      .optional()
-      .isISO8601()
-      .withMessage("A data de incorporação deve ser uma data válida"),
-  ];
+    return [
+        body('nome').optional().notEmpty().withMessage('O nome não pode ser vazio'),
+        body('cargo').optional().notEmpty().withMessage('O cargo não pode ser vazio'),
+        body('dataDeIncorporacao')
+            .optional()
+            .isISO8601()
+            .withMessage('A data de incorporação deve ser uma data válida'),
+    ];
 }
 
 module.exports = {
-  createPartialInputValidator,
-  // outros validadores...
+    createPartialInputValidator,
+    // outros validadores...
 };
 ```
 
@@ -168,25 +158,17 @@ Se alguma dessas validações estiver faltando ou incorreta, o middleware não v
 ### Exemplo de ajuste no middleware de validação parcial:
 
 ```js
-const { body } = require("express-validator");
+const { body } = require('express-validator');
 
 function createPartialInputValidator() {
-  return [
-    body("nome")
-      .optional()
-      .isString()
-      .notEmpty()
-      .withMessage("O nome não pode ser vazio"),
-    body("cargo")
-      .optional()
-      .isString()
-      .notEmpty()
-      .withMessage("O cargo não pode ser vazio"),
-    body("dataDeIncorporacao")
-      .optional()
-      .isISO8601()
-      .withMessage("A data de incorporação deve ser uma data válida"),
-  ];
+    return [
+        body('nome').optional().isString().notEmpty().withMessage('O nome não pode ser vazio'),
+        body('cargo').optional().isString().notEmpty().withMessage('O cargo não pode ser vazio'),
+        body('dataDeIncorporacao')
+            .optional()
+            .isISO8601()
+            .withMessage('A data de incorporação deve ser uma data válida'),
+    ];
 }
 ```
 
@@ -237,10 +219,10 @@ Um abraço de Code Buddy! 🤖❤️
 
 # Referências úteis
 
-- [Express.js Routing (docs oficial)](https://expressjs.com/pt-br/guide/routing.html)  
-- [Validação de dados com express-validator](https://youtu.be/yNDCRAz7CM8?si=Lh5u3j27j_a4w3A_)  
-- [Fluxo de requisição e resposta no Express](https://youtu.be/RSZHvQomeKE)  
-- [Arquitetura MVC em Node.js](https://youtu.be/bGN_xNc4A1k?si=Nj38J_8RpgsdQ-QH)  
+- [Express.js Routing (docs oficial)](https://expressjs.com/pt-br/guide/routing.html)
+- [Validação de dados com express-validator](https://youtu.be/yNDCRAz7CM8?si=Lh5u3j27j_a4w3A_)
+- [Fluxo de requisição e resposta no Express](https://youtu.be/RSZHvQomeKE)
+- [Arquitetura MVC em Node.js](https://youtu.be/bGN_xNc4A1k?si=Nj38J_8RpgsdQ-QH)
 
 ---
 
@@ -248,7 +230,6 @@ Continue firme e conte comigo para o que precisar! 🚔👨‍💻👩‍💻
 
 > Caso queira tirar uma dúvida específica, entre em contato com o Chapter no nosso [discord](https://discord.gg/DryuHVnz).
 
-
-
 ---
+
 <sup>Made By the Autograder Team.</sup><br>&nbsp;&nbsp;&nbsp;&nbsp;<sup><sup>- [Arthur Carvalho](https://github.com/ArthurCRodrigues)</sup></sup><br>&nbsp;&nbsp;&nbsp;&nbsp;<sup><sup>- [Arthur Drumond](https://github.com/drumondpucminas)</sup></sup><br>&nbsp;&nbsp;&nbsp;&nbsp;<sup><sup>- [Gabriel Resende](https://github.com/gnvr29)</sup></sup>

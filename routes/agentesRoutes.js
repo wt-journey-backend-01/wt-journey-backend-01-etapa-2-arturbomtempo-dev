@@ -1,8 +1,8 @@
-const express = require("express");
+const express = require('express');
 const router = express.Router();
-const agentesController = require("../controllers/agentesController");
-const validateRequest = require("../utils/validateRequest");
-const agentesValidation = require("../utils/agentesValidation");
+const agentesController = require('../controllers/agentesController');
+const validateRequest = require('../utils/validateRequest');
+const agentesValidation = require('../utils/agentesValidation');
 
 /**
  * @openapi
@@ -62,7 +62,7 @@ const agentesValidation = require("../utils/agentesValidation");
  *                  type: string
  *                  example: []
  */
-router.get("/agentes/:id", agentesController.getAgenteById);
+router.get('/agentes/:id', agentesController.getAgenteById);
 
 /**
  * @openapi
@@ -81,7 +81,7 @@ router.get("/agentes/:id", agentesController.getAgenteById);
  *              items:
  *                $ref: '#/components/schemas/Agente'
  */
-router.get("/agentes", agentesController.getAllAgentes);
+router.get('/agentes', agentesController.getAllAgentes);
 
 /**
  * @openapi
@@ -122,10 +122,10 @@ router.get("/agentes", agentesController.getAllAgentes);
  *                    - O cargo é obrigatório
  */
 router.post(
-  "/agentes",
-  agentesValidation.createInputValidator(),
-  validateRequest,
-  agentesController.createAgente
+    '/agentes',
+    agentesValidation.createInputValidator(),
+    validateRequest,
+    agentesController.createAgente
 );
 
 /**
@@ -191,10 +191,10 @@ router.post(
  *                  example: []
  */
 router.put(
-  "/agentes/:id",
-  agentesValidation.createInputValidator(),
-  validateRequest,
-  agentesController.updateAgente
+    '/agentes/:id',
+    agentesValidation.createInputValidator(),
+    validateRequest,
+    agentesController.updateAgente
 );
 
 /**
@@ -260,10 +260,10 @@ router.put(
  *                  example: []
  */
 router.patch(
-  "/agentes/:id",
-  agentesValidation.createPartialInputValidator(),
-  validateRequest,
-  agentesController.updatePartialAgente
+    '/agentes/:id',
+    agentesValidation.createPartialInputValidator(),
+    validateRequest,
+    agentesController.updatePartialAgente
 );
 
 /**
@@ -324,6 +324,6 @@ router.patch(
  *                  type: string
  *                  example: []
  */
-router.delete("/agentes/:id", agentesController.deleteAgente);
+router.delete('/agentes/:id', agentesController.deleteAgente);
 
 module.exports = router;
