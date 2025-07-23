@@ -1,43 +1,34 @@
 <sup>Esse é um feedback gerado por IA, ele pode conter erros.</sup>
 
-Você tem 7 créditos restantes para usar o sistema de feedback AI.
+Você tem 6 créditos restantes para usar o sistema de feedback AI.
 
 # Feedback para arturbomtempo-dev:
 
 Nota final: **97.7/100**
 
-# Feedback para arturbomtempo-dev 🚔✨
+# Feedback para o arturbomtempo-dev 🚔✨
 
-Olá, arturbomtempo-dev! Primeiro, quero parabenizá-lo pelo excelente trabalho! 🎉 Você entregou uma API muito bem estruturada, clara e organizada, seguindo a arquitetura modular com rotas, controllers e repositories. Além disso, seu tratamento de erros está muito bem feito e você cuidou dos status codes corretamente. Isso mostra um entendimento sólido do que uma API RESTful precisa para ser robusta e escalável. Palmas para você! 👏👏
-
----
-
-## 🎯 Pontos Fortes que Merecem Destaque
-
-- **Estrutura do projeto:** Você organizou muito bem os arquivos em `routes/`, `controllers/`, `repositories/` e `utils/`, exatamente como esperado. Isso facilita muito a manutenção e a escalabilidade do código.
-- **Tratamento de erros:** O uso da classe `AppError` para lançar erros personalizados e o middleware `errorHandler` para capturá-los é uma prática excelente.
-- **Validações:** A integração do `express-validator` com seus middlewares de validação (`agentesValidation` e `casosValidation`) está correta e bem aplicada.
-- **Endpoints implementados:** Todos os métodos HTTP para `/agentes` e `/casos` estão presentes, com suas respectivas funcionalidades.
-- **Filtros e ordenação:** Você implementou filtros por status e agente nos casos, e também ordenação por data de incorporação nos agentes, o que já é um bônus muito bacana! 👏
-- **Documentação Swagger:** O uso do Swagger para documentar os endpoints é um diferencial que mostra seu cuidado com a API.
+Olá, Artur! Que jornada incrível você fez até aqui! 🎉 Seu projeto está muito bem estruturado, e o cuidado com a separação entre rotas, controllers e repositories está excelente — isso é fundamental para manter o código organizado e escalável. Além disso, você implementou com sucesso vários recursos bônus, como filtros simples para os casos e agentes, o que mostra que você foi além do básico. Parabéns pela dedicação! 👏👏
 
 ---
 
-## 🔍 Análise do Ponto que Precisa de Atenção
+## O que está brilhando no seu código 💡
 
-### Problema: Falha ao atualizar parcialmente um agente com PATCH e payload em formato incorreto
-
-Você mencionou que o único teste que falhou foi:
-
-> "UPDATE: Recebe status code 400 ao tentar atualizar agente parcialmente com método PATCH e payload em formato incorreto"
-
-Vamos investigar o que pode estar acontecendo.
+- **Arquitetura modular:** Você manteve rotas, controllers e repositories bem separados. Isso facilita muito a manutenção e a expansão da API.
+- **Tratamento de erros com `AppError`:** Usar uma classe customizada para erros ajuda a manter a consistência e clareza nas respostas de erro.
+- **Validações usando `express-validator`:** Você aplicou validações em vários endpoints, o que é ótimo para garantir a integridade dos dados.
+- **Filtros e ordenação nos agentes:** Implementou filtros por cargo e ordenação por data de incorporação, com suporte para ordem crescente e decrescente — um diferencial e tanto! 🏅
+- **Endpoints de busca e filtro nos casos:** O endpoint `/casos/search` está lá, assim como filtros por agente e status, o que enriquece bastante a API.
 
 ---
 
-### Investigando o Controller `updatePartialAgente`
+## Onde podemos evoluir juntos 🔍
 
-No arquivo `controllers/agentesController.js`, seu método `updatePartialAgente` está assim:
+### 1. Atualização parcial de agentes com PATCH e payload inválido
+
+Você mencionou que o teste de atualizar parcialmente um agente com um payload mal formatado falhou, retornando código 400 esperado, mas não passou.
+
+Analisando seu controller `updatePartialAgente`:
 
 ```js
 function updatePartialAgente(req, res) {
@@ -61,13 +52,11 @@ function updatePartialAgente(req, res) {
 }
 ```
 
-Você está validando se o corpo da requisição está vazio e se o campo `id` está presente, o que é ótimo.
+Aqui, você está fazendo algumas validações manuais, mas o ponto que pode estar causando o problema é que a validação do payload (formato e campos) está delegada para o middleware `validateRequest` e o validador `agentesValidation.createPartialInputValidator()`.
 
----
+**Hipótese:** O middleware de validação para o PATCH `/agentes/:id` pode não estar capturando corretamente os erros do payload mal formatado, ou não está sendo chamado.
 
-### E quanto à validação dos dados do payload?
-
-Olhando para a rota que usa esse controller no arquivo `routes/agentesRoutes.js`:
+Mas, ao olhar para sua rota:
 
 ```js
 router.patch(
@@ -78,158 +67,207 @@ router.patch(
 );
 ```
 
-Você está aplicando o middleware de validação parcial (`createPartialInputValidator`) e em seguida o middleware `validateRequest` que deve disparar erros caso o payload não esteja correto.
+Está tudo certo: o validador, o middleware de validação e o controller estão na sequência correta.
+
+O que pode estar acontecendo é que seu validador parcial (`createPartialInputValidator`) talvez não esteja cobrindo todos os casos de payload inválido, ou não está configurado para rejeitar certos formatos incorretos.
+
+**Sugestão prática:** Reveja sua função `createPartialInputValidator` em `utils/agentesValidation.js` para garantir que ela valide corretamente os campos opcionais e rejeite payloads com campos inválidos ou formatos errados.
+
+Além disso, no controller, você pode garantir que, se o validador não capturar, você também checa se os campos do `req.body` são válidos antes de passar para o repository.
 
 ---
 
-### Hipótese do problema
+### 2. Mensagens de erro customizadas para argumentos inválidos
 
-Se o teste falha ao enviar um payload incorreto e não está retornando o status 400, pode ser que:
+Percebi que alguns testes bônus relacionados a mensagens de erro customizadas para agentes e casos não passaram.
 
-- O middleware `validateRequest` não esteja funcionando corretamente e não esteja disparando o erro.
-- Ou o middleware `createPartialInputValidator()` não está validando todos os campos obrigatórios ou formatos esperados para o PATCH.
-
----
-
-### Verificação do Middleware `validateRequest`
-
-Você não enviou o código do `validateRequest.js`, mas esse middleware é essencial para capturar erros de validação do `express-validator`. Certifique-se que ele está assim, ou similar:
+Analisando seu uso do `AppError`, você está enviando mensagens como:
 
 ```js
-const { validationResult } = require('express-validator');
+throw new AppError(400, 'Parâmetros inválidos', ['O id não pode ser atualizado']);
+```
 
-function validateRequest(req, res, next) {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-        return res.status(400).json({
-            status: 400,
-            message: 'Parâmetros inválidos',
-            errors: errors.array().map((err) => err.msg),
-        });
+Isso é ótimo! Porém, para garantir que as mensagens sejam consistentes e personalizadas para cada tipo de erro (exemplo: UUID inválido, campo obrigatório faltando, valor inválido), é importante que sua validação com `express-validator` esteja configurada para coletar esses erros e formatá-los no middleware `validateRequest`.
+
+**Dica:** No seu middleware `validateRequest.js`, verifique se você está retornando um objeto com:
+
+- `status` (ex: 400)
+- `message` (ex: "Parâmetros inválidos")
+- `errors` (array com mensagens específicas)
+
+Assim, o cliente da API recebe respostas claras e amigáveis.
+
+---
+
+### 3. Endpoint de busca do agente responsável pelo caso
+
+Você implementou o endpoint `/casos/:caso_id/agente` para retornar o agente responsável por um caso, e ele está listado nas rotas e controllers.
+
+Porém, esse teste bônus falhou.
+
+Vamos conferir no controller:
+
+```js
+function getAgenteByCasoId(req, res) {
+    const casoId = req.params.caso_id;
+    const caso = casosRepository.findById(casoId);
+    if (!caso) {
+        throw new AppError(404, 'Nenhum caso encontrado para o id especificado');
     }
-    next();
+    const agenteId = caso.agente_id;
+    const agente = agentesRepository.findById(agenteId);
+    if (!agente) {
+        throw new AppError(404, 'Nenhum agente encontrado para o agente_id especificado');
+    }
+    res.status(200).json(agente);
 }
-
-module.exports = validateRequest;
 ```
 
-Se ele estiver diferente, pode ser a causa do problema.
-
----
-
-### Verificação do Middleware `createPartialInputValidator` em `agentesValidation.js`
-
-Esse middleware deve conter validações para os campos que podem ser atualizados parcialmente, por exemplo:
+E na rota:
 
 ```js
-const { body } = require('express-validator');
-
-function createPartialInputValidator() {
-    return [
-        body('nome').optional().notEmpty().withMessage('O nome não pode ser vazio'),
-        body('cargo').optional().notEmpty().withMessage('O cargo não pode ser vazio'),
-        body('dataDeIncorporacao')
-            .optional()
-            .isISO8601()
-            .withMessage('A data de incorporação deve ser uma data válida'),
-    ];
-}
-
-module.exports = {
-    createPartialInputValidator,
-    // outros validadores...
-};
+router.get('/casos/:caso_id/agente', casosController.getAgenteByCasoId);
 ```
 
-Se alguma dessas validações estiver faltando ou incorreta, o middleware não vai detectar erros no payload.
+Tudo parece correto.
 
----
+**Possível causa:** A resposta está retornando o agente como um objeto, mas a documentação OpenAPI indica que a resposta deve ser um array com o agente dentro:
 
-### Ação recomendada:
+```yaml
+content:
+  application/json:
+    schema:
+      type: array
+      items:
+        $ref: '#/components/schemas/Agente'
+```
 
-1. **Verifique o middleware `validateRequest.js`** para garantir que ele está capturando e retornando os erros do `express-validator` com status 400.
-
-2. **Confira o validador parcial `createPartialInputValidator()`** para garantir que as validações estão cobrindo corretamente os campos opcionais, detectando payloads inválidos (ex: campos vazios, formatos errados).
-
-3. **Teste manualmente a rota PATCH com payloads inválidos** e veja se o erro 400 está sendo retornado.
-
----
-
-### Exemplo de ajuste no middleware de validação parcial:
+Ou seja, seu controller retorna:
 
 ```js
-const { body } = require('express-validator');
+res.status(200).json(agente);
+```
 
-function createPartialInputValidator() {
-    return [
-        body('nome').optional().isString().notEmpty().withMessage('O nome não pode ser vazio'),
-        body('cargo').optional().isString().notEmpty().withMessage('O cargo não pode ser vazio'),
-        body('dataDeIncorporacao')
-            .optional()
-            .isISO8601()
-            .withMessage('A data de incorporação deve ser uma data válida'),
-    ];
+Mas o esperado pode ser:
+
+```js
+res.status(200).json([agente]);
+```
+
+Para alinhar com a documentação e evitar falhas de validação no cliente, experimente retornar o agente dentro de um array.
+
+---
+
+### 4. Filtros avançados e ordenação de agentes
+
+Você implementou os filtros por cargo e ordenação por data de incorporação, mas alguns testes bônus relacionados a filtros complexos e mensagens customizadas falharam.
+
+Analisando seu controller `getAllAgentes`:
+
+```js
+if (cargo && sort) {
+    if (sort === 'dataDeIncorporacao') {
+        const agentes = agentesRepository.getByCargoAndSort(cargo, false);
+        return res.json(agentes);
+    } else if (sort === '-dataDeIncorporacao') {
+        const agentes = agentesRepository.getByCargoAndSort(cargo, true);
+        return res.json(agentes);
+    } else {
+        throw new AppError(400, 'Parâmetro de ordenação inválido');
+    }
 }
 ```
 
----
+E o repository:
 
-## 🎉 Bônus Conquistados com Louvor!
+```js
+function getByCargoAndSort(cargo, desc) {
+    let agentesFiltrados = getByCargo(cargo);
+    agentesFiltrados = agentesFiltrados.sort(
+        (a, b) => new Date(a.dataDeIncorporacao) - new Date(b.dataDeIncorporacao)
+    );
+    if (desc) {
+        agentesFiltrados.reverse();
+    }
+    return agentesFiltrados;
+}
+```
 
-Você implementou filtros simples e ordenação nos agentes e casos, além de filtros por keywords no título e descrição dos casos! Isso é um diferencial e mostra seu empenho em ir além do básico.
+Está correto, mas uma melhoria que pode ajudar a evitar erros é validar o formato da data `dataDeIncorporacao` para garantir que todas as datas sejam válidas antes de ordenar.
 
-Seu endpoint `/casos/search` está implementado e funcionando para buscar casos por termos, e a ordenação por data de incorporação nos agentes está correta. 👏👏
-
----
-
-## 💡 Dicas e Recursos para Aprimorar Ainda Mais
-
-- Para garantir que o middleware `validateRequest` funcione bem, recomendo assistir este vídeo que explica como fazer validação de dados em APIs Node.js/Express usando `express-validator`:  
-  https://youtu.be/yNDCRAz7CM8?si=Lh5u3j27j_a4w3A_
-
-- Para entender mais sobre o fluxo de requisição e resposta e como tratar status codes corretamente no Express, este vídeo é ótimo:  
-  https://youtu.be/RSZHvQomeKE
-
-- Se quiser reforçar a organização do seu projeto seguindo a arquitetura MVC e modular, este vídeo pode ajudar muito:  
-  https://youtu.be/bGN_xNc4A1k?si=Nj38J_8RpgsdQ-QH
+Além disso, certifique-se que o parâmetro `sort` está sendo passado exatamente como esperado (ex: `dataDeIncorporacao` ou `-dataDeIncorporacao`), e que seu validador de query params está cobrindo esses casos.
 
 ---
 
-## 🗺️ Resumo Rápido do que Focar para Melhorar
+### 5. Remoção segura de agentes no repository
 
-- [ ] **Middleware `validateRequest`**: Certifique-se que ele captura os erros do `express-validator` e retorna status 400 com mensagens claras.
-- [ ] **Validação parcial (`createPartialInputValidator`)**: Garanta que valida os campos corretamente para PATCH, detectando payloads inválidos (ex: campos vazios, formatos errados).
-- [ ] **Testes manuais locais**: Teste a rota PATCH de agentes com payloads incorretos para confirmar o retorno do erro 400.
-- [ ] **Continue explorando filtros e ordenações** para aprimorar ainda mais a API.
-- [ ] **Mantenha a organização do projeto** e o uso consistente de status codes e mensagens de erro.
+No seu `agentesRepository.js`, o método `remove` é assim:
+
+```js
+function remove(id) {
+    const index = agentes.findIndex((agente) => agente.id === id);
+    agentes.splice(index, 1);
+}
+```
+
+Aqui, se o `id` não for encontrado, `index` será `-1`, e `splice(-1, 1)` remove o último elemento do array, o que é perigoso e pode causar bugs difíceis de detectar.
+
+**Sugestão:** Modifique para verificar se o índice existe antes de remover:
+
+```js
+function remove(id) {
+    const index = agentes.findIndex((agente) => agente.id === id);
+    if (index !== -1) {
+        agentes.splice(index, 1);
+        return true;
+    }
+    return false;
+}
+```
+
+E no controller, só envie status 204 se `remove` retornar `true`, caso contrário lance erro 404. Isso evita remoções incorretas e mantém a integridade dos dados.
 
 ---
 
-## Finalizando...
+## Recursos para você brilhar ainda mais 💎
 
-Você está no caminho certo, com uma API muito bem feita e organizada! 🚀 O pequeno ajuste na validação parcial vai fazer seu projeto brilhar ainda mais. Continue praticando e explorando esses conceitos, pois eles são a base para APIs profissionais e escaláveis.
+- Para entender melhor como validar dados parciais e tratar erros personalizados, recomendo este vídeo:  
+  https://youtu.be/yNDCRAz7CM8?si=Lh5u3j27j_a4w3A_  
+  Ele vai te ajudar a consolidar a validação com express-validator e o tratamento de erros customizados.
 
-Se precisar, volte aos recursos que indiquei e não hesite em experimentar testes manuais para entender melhor o comportamento das rotas.
+- Para garantir que suas rotas estejam organizadas e funcionando perfeitamente, vale dar uma revisada na documentação oficial do Express sobre roteamento:  
+  https://expressjs.com/pt-br/guide/routing.html
 
-Parabéns pelo esforço e dedicação! 👏 Estou aqui torcendo pelo seu sucesso! 💪✨
-
-Um abraço de Code Buddy! 🤖❤️
-
----
-
-# Referências úteis
-
-- [Express.js Routing (docs oficial)](https://expressjs.com/pt-br/guide/routing.html)
-- [Validação de dados com express-validator](https://youtu.be/yNDCRAz7CM8?si=Lh5u3j27j_a4w3A_)
-- [Fluxo de requisição e resposta no Express](https://youtu.be/RSZHvQomeKE)
-- [Arquitetura MVC em Node.js](https://youtu.be/bGN_xNc4A1k?si=Nj38J_8RpgsdQ-QH)
+- Se quiser aprofundar na manipulação de arrays para evitar bugs como o do método `remove`, este vídeo é excelente:  
+  https://youtu.be/glSgUKA5LjE?si=t9G2NsC8InYAU9cI
 
 ---
 
-Continue firme e conte comigo para o que precisar! 🚔👨‍💻👩‍💻
+## Resumo rápido dos principais pontos para focar 🚦
+
+- **Validação parcial do PATCH:** Garanta que o validador `createPartialInputValidator` cobre todos os casos de payload mal formatado e que o middleware `validateRequest` está capturando esses erros para retornar 400 corretamente.
+
+- **Formato da resposta no endpoint `/casos/:caso_id/agente`:** Retorne o agente dentro de um array para alinhar com a especificação OpenAPI.
+
+- **Tratamento seguro na remoção de agentes:** Ajuste o método `remove` para evitar remoção indevida caso o ID não exista.
+
+- **Mensagens de erro customizadas:** Certifique-se que o middleware de validação formata as mensagens de erro conforme esperado, com campos `status`, `message` e `errors` padronizados.
+
+- **Validação e ordenação de filtros:** Confira a validação dos parâmetros de query para filtros e ordenação, garantindo que os valores sejam aceitos e tratados corretamente.
+
+---
+
+Artur, você está no caminho certo e seu código demonstra muita maturidade! 🚀 Continue focando na robustez da validação e na consistência das respostas da API, pois isso faz toda a diferença para quem vai consumir seu serviço. Qualquer dúvida, estou aqui para ajudar! Vamos juntos nessa jornada! 💪✨
+
+Abraço forte e até a próxima revisão! 👮‍♂️👩‍💻
+
+---
+
+# Code Buddy
 
 > Caso queira tirar uma dúvida específica, entre em contato com o Chapter no nosso [discord](https://discord.gg/DryuHVnz).
 
----
 
+
+---
 <sup>Made By the Autograder Team.</sup><br>&nbsp;&nbsp;&nbsp;&nbsp;<sup><sup>- [Arthur Carvalho](https://github.com/ArthurCRodrigues)</sup></sup><br>&nbsp;&nbsp;&nbsp;&nbsp;<sup><sup>- [Arthur Drumond](https://github.com/drumondpucminas)</sup></sup><br>&nbsp;&nbsp;&nbsp;&nbsp;<sup><sup>- [Gabriel Resende](https://github.com/gnvr29)</sup></sup>
