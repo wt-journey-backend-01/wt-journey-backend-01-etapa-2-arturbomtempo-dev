@@ -86,8 +86,31 @@ function updateCaso(req, res) {
 function updatePartialCaso(req, res) {
     const id = req.params.id;
 
+    if (!req.body || Object.keys(req.body).length === 0) {
+        throw new AppError(400, 'Parâmetros inválidos', ['O corpo da requisição está vazio']);
+    }
+
     if (req.body.id) {
         throw new AppError(400, 'Parâmetros inválidos', ['O id não pode ser atualizado']);
+    }
+
+    // Validações adicionais para garantir que os dados sejam válidos
+    const invalidFields = [];
+    
+    if (req.body.titulo !== undefined && (typeof req.body.titulo !== 'string' || req.body.titulo.trim() === '')) {
+        invalidFields.push('O título deve ser uma string não vazia');
+    }
+    
+    if (req.body.descricao !== undefined && (typeof req.body.descricao !== 'string' || req.body.descricao.trim() === '')) {
+        invalidFields.push('A descrição deve ser uma string não vazia');
+    }
+    
+    if (req.body.status !== undefined && !['aberto', 'solucionado'].includes(req.body.status)) {
+        invalidFields.push('O status deve ser "aberto" ou "solucionado"');
+    }
+    
+    if (invalidFields.length > 0) {
+        throw new AppError(400, 'Parâmetros inválidos', invalidFields);
     }
 
     const agenteId = req.body.agente_id;
@@ -127,7 +150,7 @@ function getAgenteByCasoId(req, res) {
     if (!agente) {
         throw new AppError(404, 'Nenhum agente encontrado para o agente_id especificado');
     }
-    res.status(200).json(agente);
+    res.status(200).json([agente]);
 }
 
 function filter(req, res) {
