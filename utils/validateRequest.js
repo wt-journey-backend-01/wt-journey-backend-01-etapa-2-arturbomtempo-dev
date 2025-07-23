@@ -1,12 +1,11 @@
 import { validationResult } from 'express-validator';
 import AppError from './appError.js';
 
-function validateRequest(req, res, next) {
+export default function validateRequest(req, res, next) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        throw new AppError(400, 'Parâmetros inválidos', errors.array());
+        const extractedErrors = errors.array().map((err) => err.msg);
+        throw new AppError(400, 'Parâmetros inválidos', extractedErrors);
     }
     next();
 }
-
-export default validateRequest;
