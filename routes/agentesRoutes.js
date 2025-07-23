@@ -1,121 +1,329 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const controller = require('../controllers/agentesController');
+const agentesController = require("../controllers/agentesController");
+const validateRequest = require("../utils/validateRequest");
+const agentesValidation = require("../utils/agentesValidation");
 
 /**
- * @swagger
+ * @openapi
+ * /agentes/{id}:
+ *  get:
+ *    summary: Retorna um agente específico
+ *    description: Retorna os detalhes de um agente pelo seu id
+ *    tags: [Agentes]
+ *    parameters:
+ *      - name: id
+ *        in: path
+ *        required: true
+ *        schema:
+ *          type: string
+ *          format: uuid
+ *          example: a4e517b1-06f0-41d5-b65c-8989cea53db9
+ *    responses:
+ *      200:
+ *        description: Detalhes do agente retornados com sucesso
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: array
+ *              items:
+ *                $ref: '#/components/schemas/Agente'
+ *      400:
+ *        description: Identificador inválido
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: object
+ *              properties:
+ *                status:
+ *                  type: integer
+ *                  example: 400
+ *                message:
+ *                  type: string
+ *                  example: Parâmetros inválidos
+ *                errors:
+ *                  type: string
+ *                  example:
+ *                    - O parâmetro "id" deve ser um UUID válido
+ *      404:
+ *        description: Nenhum agente encontrado para o id especificado
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: object
+ *              properties:
+ *                status:
+ *                  type: integer
+ *                  example: 404
+ *                message:
+ *                  type: string
+ *                  example: Nenhum agente encontrado para o id especificado
+ *                errors:
+ *                  type: string
+ *                  example: []
+ */
+router.get("/agentes/:id", agentesController.getAgenteById);
+
+/**
+ * @openapi
  * /agentes:
- *   get:
- *     summary: Lista todos os agentes
- *     responses:
- *       200:
- *         description: Lista de agentes
+ *  get:
+ *    summary: Retorna todos os agentes
+ *    description: Retorna uma lista de todos os agentes disponíveis
+ *    tags: [Agentes]
+ *    responses:
+ *      200:
+ *        description: Lista todos os agentes
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: array
+ *              items:
+ *                $ref: '#/components/schemas/Agente'
  */
-router.get('/', controller.getAllAgentes);
+router.get("/agentes", agentesController.getAllAgentes);
 
 /**
- * @swagger
- * /agentes/{id}:
- *   get:
- *     summary: Busca um agente pelo ID
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: Agente encontrado
- *       404:
- *         description: Agente não encontrado
- */
-router.get('/:id', controller.getAgenteById);
-
-/**
- * @swagger
+ * @openapi
  * /agentes:
- *   post:
- *     summary: Cria um novo agente
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/components/schemas/Agente'
- *     responses:
- *       201:
- *         description: Agente criado
+ *  post:
+ *    summary: Cria um novo agente
+ *    description: Cria um novo agente com os dados fornecidos
+ *    tags: [Agentes]
+ *    requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *          schema:
+ *            $ref: '#/components/schemas/NovoAgente'
+ *    responses:
+ *      201:
+ *        description: Agente criado com sucesso
+ *        content:
+ *          application/json:
+ *            schema:
+ *              $ref: '#/components/schemas/Agente'
+ *      400:
+ *        description: Parâmetros inválidos
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: object
+ *              properties:
+ *                status:
+ *                  type: integer
+ *                  example: 400
+ *                message:
+ *                  type: string
+ *                  example: Parâmetros inválidos
+ *                errors:
+ *                  type: string
+ *                  example:
+ *                    - O cargo é obrigatório
  */
-router.post('/', controller.createAgente);
+router.post(
+  "/agentes",
+  agentesValidation.createInputValidator(),
+  validateRequest,
+  agentesController.createAgente
+);
 
 /**
- * @swagger
+ * @openapi
  * /agentes/{id}:
- *   put:
- *     summary: Atualiza um agente existente
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/components/schemas/Agente'
- *     responses:
- *       200:
- *         description: Agente atualizado
- *       404:
- *         description: Agente não encontrado
+ *  put:
+ *    summary: Atualiza agente
+ *    description: Atualiza um agente com os dados fornecidos
+ *    tags: [Agentes]
+ *    parameters:
+ *      - name: id
+ *        in: path
+ *        required: true
+ *        schema:
+ *          type: string
+ *          format: uuid
+ *          example: a4e517b1-06f0-41d5-b65c-8989cea53db9
+ *    requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *          schema:
+ *            $ref: '#/components/schemas/NovoAgente'
+ *    responses:
+ *      200:
+ *        description: Agente atualizado com sucesso
+ *        content:
+ *          application/json:
+ *            schema:
+ *              $ref: '#/components/schemas/Agente'
+ *      400:
+ *        description: Parâmetros inválidos
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: object
+ *              properties:
+ *                status:
+ *                  type: integer
+ *                  example: 400
+ *                message:
+ *                  type: string
+ *                  example: Parâmetros inválidos
+ *                errors:
+ *                  type: string
+ *                  example:
+ *                    - O cargo é obrigatório
+ *      404:
+ *        description: O agente definido não existe na base de dados
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: object
+ *              properties:
+ *                status:
+ *                  type: integer
+ *                  example: 404
+ *                message:
+ *                  type: string
+ *                  example: Nenhum agente encontrado para o id especificado
+ *                errors:
+ *                  type: string
+ *                  example: []
  */
-router.put('/:id', controller.updateAgente);
+router.put(
+  "/agentes/:id",
+  agentesValidation.createInputValidator(),
+  validateRequest,
+  agentesController.updateAgente
+);
 
 /**
- * @swagger
+ * @openapi
  * /agentes/{id}:
- *   patch:
- *     summary: Atualiza parcialmente um agente existente
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/components/schemas/Agente'
- *     responses:
- *       200:
- *         description: Agente atualizado parcialmente
- *       404:
- *         description: Agente não encontrado
+ *  patch:
+ *    summary: Atualiza agente
+ *    description: Atualiza um agente parcialmente com os dados fornecidos
+ *    tags: [Agentes]
+ *    parameters:
+ *      - name: id
+ *        in: path
+ *        required: true
+ *        schema:
+ *          type: string
+ *          format: uuid
+ *          example: a4e517b1-06f0-41d5-b65c-8989cea53db9
+ *    requestBody:
+ *      required: false
+ *      content:
+ *        application/json:
+ *          schema:
+ *            $ref: '#/components/schemas/NovoAgente'
+ *    responses:
+ *      200:
+ *        description: Agente atualizado com sucesso
+ *        content:
+ *          application/json:
+ *            schema:
+ *              $ref: '#/components/schemas/Agente'
+ *      400:
+ *        description: Parâmetros inválidos
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: object
+ *              properties:
+ *                status:
+ *                  type: integer
+ *                  example: 400
+ *                message:
+ *                  type: string
+ *                  example: Parâmetros inválidos
+ *                errors:
+ *                  type: string
+ *                  example:
+ *                    - O nome não pode ser vazio
+ *      404:
+ *        description: O agente definido não existe na base de dados
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: object
+ *              properties:
+ *                status:
+ *                  type: integer
+ *                  example: 404
+ *                message:
+ *                  type: string
+ *                  example: Nenhum agente encontrado para o id especificado
+ *                errors:
+ *                  type: string
+ *                  example: []
  */
-router.patch('/:id', controller.updateAgente);
+router.patch(
+  "/agentes/:id",
+  agentesValidation.createPartialInputValidator(),
+  validateRequest,
+  agentesController.updatePartialAgente
+);
 
 /**
- * @swagger
+ * @openapi
  * /agentes/{id}:
- *   delete:
- *     summary: Remove um agente existente
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: Agente removido
- *       404:
- *         description: Agente não encontrado
+ *  delete:
+ *    summary: Apaga um agente específico
+ *    description: Remove um agente da base de dados
+ *    tags: [Agentes]
+ *    parameters:
+ *      - name: id
+ *        in: path
+ *        required: true
+ *        schema:
+ *          type: string
+ *          format: uuid
+ *          example: a4e517b1-06f0-41d5-b65c-8989cea53db9
+ *    responses:
+ *      204:
+ *        description: Agente removido com sucesso
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: array
+ *              items:
+ *                $ref: '#/components/schemas/Caso'
+ *      400:
+ *        description: Identificador inválido
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: object
+ *              properties:
+ *                status:
+ *                  type: integer
+ *                  example: 400
+ *                message:
+ *                  type: string
+ *                  example: Parâmetros inválidos
+ *                errors:
+ *                  type: string
+ *                  example:
+ *                    - O parâmetro "id" deve ser um UUID válido
+ *      404:
+ *        description: Nenhum agente para o id especificado
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: object
+ *              properties:
+ *                status:
+ *                  type: integer
+ *                  example: 404
+ *                message:
+ *                  type: string
+ *                  example: Nenhum agente encontrado para o id especificado
+ *                errors:
+ *                  type: string
+ *                  example: []
  */
-router.delete('/:id', controller.deleteAgente);
+router.delete("/agentes/:id", agentesController.deleteAgente);
 
 module.exports = router;
