@@ -1,13 +1,5 @@
-const errorHandler = (err, req, res, next) => {
-    const statusCode = err.statusCode || 500;
-    const message = err.message || 'Erro interno no servidor';
-    const errors = err.errors || [];
+function errorResponse(res, statusCode, message) {
+    return res.status(statusCode).json({ error: message });
+}
 
-    res.status(statusCode).json({
-        status: statusCode,
-        message,
-        errors,
-    });
-};
-
-export default errorHandler;
+module.exports = errorResponse;

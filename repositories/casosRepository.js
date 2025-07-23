@@ -1,44 +1,19 @@
-import { v4 as uuidv4 } from 'uuid';
-
 const casos = [];
 
 function findAll() {
     return casos;
 }
-
 function findById(id) {
-    const caso = casos.find((caso) => caso.id === id);
+    const caso = casos.find((a) => a.id === id);
     return caso;
 }
 
-function create(caso) {
-    caso.id = uuidv4();
+function criarCaso(caso) {
     casos.push(caso);
-    return caso;
 }
 
-function update(id, updatedCaso) {
-    const caso = casos.find((caso) => caso.id === id);
-    if (!caso) return null;
-    caso.titulo = updatedCaso.titulo;
-    caso.descricao = updatedCaso.descricao;
-    caso.status = updatedCaso.status;
-    caso.agente_id = updatedCaso.agente_id;
-    return caso;
-}
-
-function updatePartial(id, partialCaso) {
-    const caso = casos.find((caso) => caso.id === id);
-    if (!caso) return null;
-    if (partialCaso.titulo) caso.titulo = partialCaso.titulo;
-    if (partialCaso.descricao) caso.descricao = partialCaso.descricao;
-    if (partialCaso.status) caso.status = partialCaso.status;
-    if (partialCaso.agente_id) caso.agente_id = partialCaso.agente_id;
-    return caso;
-}
-
-function remove(id) {
-    const index = casos.findIndex((caso) => caso.id === id);
+function deleteCaso(id) {
+    const index = casos.findIndex((c) => c.id === id);
     if (index !== -1) {
         casos.splice(index, 1);
         return true;
@@ -46,36 +21,20 @@ function remove(id) {
     return false;
 }
 
-function getByAgenteId(agenteId) {
-    return casos.filter((caso) => caso.agente_id === agenteId);
+function buscaPalavraEmCaso(palavraChave) {
+    const casosFiltrados = casos.filter((caso) => {
+        const titulo = caso.titulo ? caso.titulo.toLowerCase() : '';
+        const descricao = caso.descricao ? caso.descricao.toLowerCase() : '';
+
+        return titulo.includes(palavraChave) || descricao.includes(palavraChave);
+    });
+    return casosFiltrados;
 }
 
-function getByStatus(status) {
-    return casos.filter((caso) => caso.status === status);
-}
-
-function getByAgenteIdAndStatus(agenteId, status) {
-    return casos.filter((caso) => caso.agente_id === agenteId && caso.status === status);
-}
-
-function filter(term) {
-    if (!term) return [];
-    return casos.filter(
-        (caso) =>
-            caso.titulo.toLowerCase().includes(term.toLowerCase()) ||
-            caso.descricao.toLowerCase().includes(term.toLowerCase())
-    );
-}
-
-export {
+module.exports = {
     findAll,
     findById,
-    create,
-    update,
-    updatePartial,
-    remove,
-    getByAgenteId,
-    getByStatus,
-    filter,
-    getByAgenteIdAndStatus,
+    criarCaso,
+    deleteCaso,
+    buscaPalavraEmCaso,
 };
