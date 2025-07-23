@@ -36,7 +36,11 @@ function updatePartial(id, partialAgente) {
 
 function remove(id) {
     const index = agentes.findIndex((agente) => agente.id === id);
-    agentes.splice(index, 1);
+    if (index !== -1) {
+        agentes.splice(index, 1);
+        return true;
+    }
+    return false;
 }
 
 function getByCargo(cargo) {
