@@ -1,39 +1,92 @@
+const { v4: uuidv4 } = require('uuid');
+
 const agentes = [];
 
 function findAll() {
     return agentes;
 }
+
 function findById(id) {
-    const agente = agentes.find((a) => a.id === id);
+    const agente = agentes.find((agente) => agente.id === id);
     return agente;
 }
 
-function criarAgente(agente) {
+function create(agente) {
+    agente.id = uuidv4();
     agentes.push(agente);
+    return agente;
 }
 
-function updateAgente(id, dadosAtualizados) {
-    const index = agentes.findIndex((a) => a.id === id);
-    if (index !== -1) {
-        agentes[index] = { ...agentes[index], ...dadosAtualizados };
-        return agentes[index];
-    }
-    return null;
+function update(id, updatedAgente) {
+    const agente = agentes.find((agente) => agente.id === id);
+
+    agente.nome = updatedAgente.nome;
+    agente.cargo = updatedAgente.cargo;
+    agente.dataDeIncorporacao = updatedAgente.dataDeIncorporacao;
+
+    return agente;
 }
 
-function deleteAgente(id) {
-    const index = agentes.findIndex((a) => a.id === id);
-    if (index !== -1) {
-        agentes.splice(index, 1);
-        return true;
+function updatePartial(id, partialAgente) {
+    const agente = agentes.find((agente) => agente.id === id);
+
+    if (partialAgente.nome) {
+        agente.nome = partialAgente.nome;
     }
-    return false;
+
+    if (partialAgente.cargo) {
+        agente.cargo = partialAgente.cargo;
+    }
+
+    if (partialAgente.dataDeIncorporacao) {
+        agente.dataDeIncorporacao = partialAgente.dataDeIncorporacao;
+    }
+
+    return agente;
+}
+
+function remove(id) {
+    const index = agentes.findIndex((agente) => agente.id === id);
+    agentes.splice(index, 1);
+}
+
+function getByCargo(cargo) {
+    return agentes.filter((agente) => agente.cargo === cargo);
+}
+
+function getSortedByDataDeIncorporacao(desc) {
+    const sortedAgentes = [...agentes].sort(
+        (a, b) => new Date(a.dataDeIncorporacao) - new Date(b.dataDeIncorporacao)
+    );
+
+    if (desc) {
+        sortedAgentes.reverse();
+    }
+
+    return sortedAgentes;
+}
+
+function getByCargoAndSort(cargo, desc) {
+    let agentesFiltrados = getByCargo(cargo);
+    agentesFiltrados = agentesFiltrados.sort(
+        (a, b) => new Date(a.dataDeIncorporacao) - new Date(b.dataDeIncorporacao)
+    );
+
+    if (desc) {
+        agentesFiltrados.reverse();
+    }
+
+    return agentesFiltrados;
 }
 
 module.exports = {
     findAll,
     findById,
-    criarAgente,
-    updateAgente,
-    deleteAgente,
+    create,
+    update,
+    updatePartial,
+    remove,
+    getByCargo,
+    getSortedByDataDeIncorporacao,
+    getByCargoAndSort,
 };

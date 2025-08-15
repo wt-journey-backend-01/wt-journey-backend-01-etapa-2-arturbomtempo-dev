@@ -1,179 +1,175 @@
-const casosRepository = require('../repositories/casosRepository.js');
-const agentesRepository = require('../repositories/agentesRepository.js');
-const errorResponse = require('../utils/errorHandler.js');
-const { v4: uuid } = require('uuid');
+const casosRepository = require('../repositories/casosRepository');
+const agentesRepository = require('../repositories/agentesRepository');
+const { AppError } = require('../utils/errorHandler');
 
-function getCasos(req, res) {
-    const casos = casosRepository.findAll();
-    const agente_id = req.query.agente_id;
+function getAllCasos(req, res) {
+    const agenteId = req.query.agente_id;
     const status = req.query.status;
+
+    if (agenteId && status) {
+        const casos = casosRepository.getByAgenteIdAndStatus(agenteId, status);
+
+        if (!casos || casos.length === 0) {
+            throw new AppError(404, 'Nenhum caso encontrado para o agente e status especificados');
+        }
+
+        return res.json(casos);
+    }
+
+    if (agenteId) {
+        const casos = casosRepository.getByAgenteId(agenteId);
+
+        if (!casos || casos.length === 0) {
+            throw new AppError(404, 'Nenhum caso encontrado para o agente especificado');
+        }
+
+        return res.json(casos);
+    }
+
     if (status) {
-        if (status != 'aberto' && status != 'solucionado') {
-            return errorResponse(res, 400, 'Status nao permitido ');
+        const casos = casosRepository.getByStatus(status);
+
+        if (!casos || casos.length === 0) {
+            throw new AppError(404, 'Nenhum caso encontrado com o status especificado');
         }
-        const casosStatus = casos.filter((c) => c.status == status);
-        if (casosStatus.length == 0) {
-            return errorResponse(res, 404, `Casos com status ${status} nao encotrados`);
-        }
-        return res.status(200).json(casosStatus);
+
+        return res.json(casos);
     }
 
-    if (agente_id) {
-        const casosAgente = casos.filter((c) => c.agente_id === agente_id);
-        if (casosAgente.length === 0) {
-            return errorResponse(res, 404, `Casos do agente ${agente_id}, nao encontrados`);
-        }
-        return res.status(200).json(casosAgente);
-    }
+    const casos = casosRepository.findAll();
 
-    res.status(200).json(casos);
+    res.json(casos);
 }
 
-function getCaso(req, res) {
-    const casoId = req.params.id;
-    const caso = casosRepository.findById(casoId);
+function getCasosById(req, res) {
+    const id = req.params.id;
+    const caso = casosRepository.findById(id);
+
     if (!caso) {
-        return errorResponse(res, 404, 'caso nao encontrado');
-    }
-    res.status(200).json(caso);
-}
-
-function getAgentebyCaso(req, res) {
-    const casoId = req.params.id;
-    const caso = casosRepository.findById(casoId);
-    if (!caso) {
-        return errorResponse(res, 404, 'caso nao encontrado');
-    }
-    const agente = agentesRepository.findById(caso.agente_id);
-    if (!agente) {
-        return errorResponse(res, 404, 'Agente nao encontrado');
-    }
-    res.status(200).json(agente);
-}
-
-function searchEmCaso(req, res) {
-    const busca = req.query.q ? req.query.q.toLowerCase() : '';
-    if (!busca) {
-        return errorResponse(res, 404, 'Parametro de busca nao encontrado');
+        throw new AppError(404, 'Nenhum caso encontrado para o id especificado');
     }
 
-    const casosFiltrados = casosRepository.buscaPalavraEmCaso(busca);
-    if (casosFiltrados.length === 0) {
-        return errorResponse(res, 404, `Casos com a palavra ${busca} nao encotrados`);
-    }
-    res.status(200).json(casosFiltrados);
+    res.json(caso);
 }
 
 function createCaso(req, res) {
-    const { titulo, descricao, status, agente_id } = req.body;
-    if (!titulo || !descricao || !status || !agente_id) {
-        return errorResponse(res, 400, 'Titulo, descricao, status e agente obrigatorios');
+    const agenteId = req.body.agente_id;
+
+    if (agenteId) {
+        const agente = agentesRepository.findById(agenteId);
+
+        if (!agente) {
+            throw new AppError(404, 'Nenhum agente encontrado para o id especificado');
+        }
+    } else {
+        throw new AppError(404, 'Nenhum agente encontrado para o id especificado');
     }
 
-    if (status != 'aberto' && status != 'solucionado') {
-        return errorResponse(res, 400, 'Status nao permitido ');
-    }
-    const agente = agentesRepository.findById(agente_id);
-    if (!agente) {
-        return errorResponse(res, 404, 'Agente não encontrado para o agente_id fornecido');
-    }
-    const novoCaso = {
-        id: uuid(),
-        titulo,
-        descricao,
-        status,
-        agente_id,
-    };
-    casosRepository.criarCaso(novoCaso);
+    const novoCaso = casosRepository.create(req.body);
+
     res.status(201).json(novoCaso);
 }
 
-function deleteCaso(req, res) {
-    const casoId = req.params.id;
-    const sucesso = casosRepository.deleteCaso(casoId);
-    if (!sucesso) {
-        return errorResponse(res, 404, `Erro ao deletar caso ${casoId}`);
+function updateCaso(req, res) {
+    const id = req.params.id;
+    const agenteId = req.body.agente_id;
+
+    if (agenteId) {
+        const agente = agentesRepository.findById(agenteId);
+
+        if (!agente) {
+            throw new AppError(404, 'Nenhum agente encontrado para o id especificado');
+        }
+    } else {
+        throw new AppError(404, 'Nenhum agente encontrado para o id especificado');
     }
+
+    const caso = casosRepository.findById(id);
+
+    if (!caso) {
+        throw new AppError(404, 'Nenhum caso encontrado para o id especificado');
+    }
+
+    const updatedCaso = casosRepository.update(id, req.body);
+
+    res.status(200).json(updatedCaso);
+}
+
+function updatePartialCaso(req, res) {
+    const id = req.params.id;
+
+    if (req.body.id) {
+        throw new AppError(400, 'Parâmetros inválidos', ['O id não pode ser atualizado']);
+    }
+
+    const agenteId = req.body.agente_id;
+
+    if (agenteId) {
+        const agente = agentesRepository.findById(agenteId);
+
+        if (!agente) {
+            throw new AppError(404, 'Nenhum agente encontrado para o id especificado');
+        }
+    }
+
+    const caso = casosRepository.findById(id);
+
+    if (!caso) {
+        throw new AppError(404, 'Nenhum caso encontrado para o id especificado');
+    }
+
+    const updatedCaso = casosRepository.updatePartial(id, req.body);
+
+    res.status(200).json(updatedCaso);
+}
+
+function deleteCaso(req, res) {
+    const id = req.params.id;
+    const deleted = casosRepository.remove(id);
+
+    if (!deleted) {
+        throw new AppError(404, 'Nenhum caso encontrado para o id especificado');
+    }
+
     res.status(204).send();
 }
-function updateCaso(req, res) {
-    const casoId = req.params.id;
-    const { titulo, descricao, status, agente_id } = req.body;
-    if ('id' in req.body) {
-        return errorResponse(res, 400, 'Não é permitido alterar o ID do caso.');
-    }
 
-    if (!titulo || !descricao || !status || !agente_id) {
-        return errorResponse(
-            res,
-            400,
-            'Todos os campos são obrigatórios para atualização completa.'
-        );
-    }
-
+function getAgenteByCasoId(req, res) {
+    const casoId = req.params.caso_id;
     const caso = casosRepository.findById(casoId);
+
     if (!caso) {
-        return errorResponse(res, 404, 'caso não encontrado.');
+        throw new AppError(404, 'Nenhum caso encontrado para o id especificado');
     }
 
-    if (status != 'aberto' && status != 'solucionado') {
-        return errorResponse(res, 400, 'Status nao permitido ');
-    }
-    caso.status = status;
+    const agenteId = caso.agente_id;
+    const agente = agentesRepository.findById(agenteId);
 
-    const agente = agentesRepository.findById(agente_id);
     if (!agente) {
-        return errorResponse(res, 404, 'Agente não encontrado para o agente_id fornecido');
+        throw new AppError(404, 'Nenhum agente encontrado para o agente_id especificado');
     }
 
-    caso.titulo = titulo;
-    caso.descricao = descricao;
-    caso.status = status;
-    caso.agente_id = agente_id;
-
-    res.status(200).json(caso);
+    res.status(200).json(agente);
 }
 
-function patchCaso(req, res) {
-    const casoId = req.params.id;
-    const { titulo, descricao, status, agente_id } = req.body;
+function filter(req, res) {
+    const term = req.query.q;
+    const casos = casosRepository.filter(term);
 
-    const caso = casosRepository.findById(casoId);
-    if (!caso) {
-        return errorResponse(res, 404, 'Caso não encontrado.');
-    }
-
-    if (titulo !== undefined) {
-        caso.titulo = titulo;
-    }
-    if (descricao !== undefined) {
-        caso.descricao = descricao;
-    }
-    if (status !== undefined) {
-        if (status != 'aberto' && status != 'solucionado') {
-            return errorResponse(res, 400, 'Status nao permitido ');
-        }
-        caso.status = status;
+    if (casos.length === 0) {
+        throw new AppError(404, 'Nenhum caso encontrado para a busca especificada');
     }
 
-    if (agente_id !== undefined) {
-        const agente = agentesRepository.findById(agente_id);
-        if (!agente) {
-            return errorResponse(res, 404, 'Agente não encontrado para o agente_id fornecido.');
-        }
-        caso.agente_id = agente_id;
-    }
-
-    res.status(200).json(caso);
+    res.json(casos);
 }
 
 module.exports = {
-    getCaso,
-    getCasos,
-    getAgentebyCaso,
+    getAllCasos,
+    getCasosById,
     createCaso,
-    deleteCaso,
     updateCaso,
-    patchCaso,
-    searchEmCaso,
+    updatePartialCaso,
+    deleteCaso,
+    getAgenteByCasoId,
+    filter,
 };

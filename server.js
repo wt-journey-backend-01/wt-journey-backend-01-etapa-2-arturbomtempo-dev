@@ -1,16 +1,23 @@
 const express = require('express');
-const app = express();
-const PORT = 3000;
-
+const swagger = require('./docs/swagger');
+const agentesRouter = require('./routes/agentesRoutes');
+const casosRouter = require('./routes/casosRoutes');
+const { errorHandler } = require('./utils/errorHandler');
 const agentesRoutes = require('./routes/agentesRoutes.js');
 const casosRoutes = require('./routes/casosRoutes.js');
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+const app = express();
+const PORT = process.env.PORT || 3000;
 
-app.use(agentesRoutes);
-app.use(casosRoutes);
+app.use(express.json());
+
+app.use('/agentes', agentesRouter);
+app.use('/casos', casosRouter);
+
+swagger(app);
+
+app.use(errorHandler);
 
 app.listen(PORT, () => {
-    console.log(`Servidor do Departamento de Polícia rodando em localhost:${PORT}`);
+    console.log(`Servidor do Departamento de Polícia rodando na porta:${PORT}`);
 });
