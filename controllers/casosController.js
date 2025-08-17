@@ -10,7 +10,7 @@ function getAllCasos(req, res) {
         const casos = casosRepository.getByAgenteIdAndStatus(agenteId, status);
 
         if (!casos || casos.length === 0) {
-            throw new AppError(404, 'Nenhum caso encontrado para o agente e status especificados');
+            throw new AppError(404, 'Caso não encontrado.');
         }
 
         return res.json(casos);
@@ -20,7 +20,7 @@ function getAllCasos(req, res) {
         const casos = casosRepository.getByAgenteId(agenteId);
 
         if (!casos || casos.length === 0) {
-            throw new AppError(404, 'Nenhum caso encontrado para o agente especificado');
+            throw new AppError(404, 'Caso não encontrado.');
         }
 
         return res.json(casos);
@@ -30,7 +30,7 @@ function getAllCasos(req, res) {
         const casos = casosRepository.getByStatus(status);
 
         if (!casos || casos.length === 0) {
-            throw new AppError(404, 'Nenhum caso encontrado com o status especificado');
+            throw new AppError(404, 'Caso não encontrado.');
         }
 
         return res.json(casos);
@@ -46,7 +46,7 @@ function getCasosById(req, res) {
     const caso = casosRepository.findById(id);
 
     if (!caso) {
-        throw new AppError(404, 'Nenhum caso encontrado para o id especificado');
+        throw new AppError(404, 'Caso não encontrado.');
     }
 
     res.json(caso);
@@ -59,10 +59,10 @@ function createCaso(req, res) {
         const agente = agentesRepository.findById(agenteId);
 
         if (!agente) {
-            throw new AppError(404, 'Nenhum agente encontrado para o id especificado');
+            throw new AppError(404, 'Agente não encontrado.');
         }
     } else {
-        throw new AppError(404, 'Nenhum agente encontrado para o id especificado');
+        throw new AppError(404, 'Agente não encontrado.');
     }
 
     const novoCaso = casosRepository.create(req.body);
@@ -78,16 +78,16 @@ function updateCaso(req, res) {
         const agente = agentesRepository.findById(agenteId);
 
         if (!agente) {
-            throw new AppError(404, 'Nenhum agente encontrado para o id especificado');
+            throw new AppError(404, 'Agente não encontrado.');
         }
     } else {
-        throw new AppError(404, 'Nenhum agente encontrado para o id especificado');
+        throw new AppError(404, 'Agente não encontrado.');
     }
 
     const caso = casosRepository.findById(id);
 
     if (!caso) {
-        throw new AppError(404, 'Nenhum caso encontrado para o id especificado');
+        throw new AppError(404, 'Caso não encontrado.');
     }
 
     const updatedCaso = casosRepository.update(id, req.body);
@@ -99,7 +99,7 @@ function updatePartialCaso(req, res) {
     const id = req.params.id;
 
     if (req.body.id) {
-        throw new AppError(400, 'Parâmetros inválidos', ['O id não pode ser atualizado']);
+        throw new AppError(400, 'Parâmetro inválido.', ['O id não pode ser atualizado.']);
     }
 
     const agenteId = req.body.agente_id;
@@ -108,14 +108,14 @@ function updatePartialCaso(req, res) {
         const agente = agentesRepository.findById(agenteId);
 
         if (!agente) {
-            throw new AppError(404, 'Nenhum agente encontrado para o id especificado');
+            throw new AppError(404, 'Agente não encontrado.');
         }
     }
 
     const caso = casosRepository.findById(id);
 
     if (!caso) {
-        throw new AppError(404, 'Nenhum caso encontrado para o id especificado');
+        throw new AppError(404, 'Caso não encontrado.');
     }
 
     const updatedCaso = casosRepository.updatePartial(id, req.body);
@@ -128,7 +128,7 @@ function deleteCaso(req, res) {
     const deleted = casosRepository.remove(id);
 
     if (!deleted) {
-        throw new AppError(404, 'Nenhum caso encontrado para o id especificado');
+        throw new AppError(404, 'Caso não encontrado.');
     }
 
     res.status(204).send();
@@ -139,14 +139,14 @@ function getAgenteByCasoId(req, res) {
     const caso = casosRepository.findById(casoId);
 
     if (!caso) {
-        throw new AppError(404, 'Nenhum caso encontrado para o id especificado');
+        throw new AppError(404, 'Caso não encontrado.');
     }
 
     const agenteId = caso.agente_id;
     const agente = agentesRepository.findById(agenteId);
 
     if (!agente) {
-        throw new AppError(404, 'Nenhum agente encontrado para o agente_id especificado');
+        throw new AppError(404, 'Agente não encontrado.');
     }
 
     res.status(200).json(agente);
@@ -157,7 +157,7 @@ function filter(req, res) {
     const casos = casosRepository.filter(term);
 
     if (casos.length === 0) {
-        throw new AppError(404, 'Nenhum caso encontrado para a busca especificada');
+        throw new AppError(404, 'Caso não encontrado.');
     }
 
     res.json(casos);

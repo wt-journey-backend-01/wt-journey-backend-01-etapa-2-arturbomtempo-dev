@@ -68,6 +68,7 @@ function getSortedByDataDeIncorporacao(desc) {
 
 function getByCargoAndSort(cargo, desc) {
     let agentesFiltrados = getByCargo(cargo);
+    
     agentesFiltrados = agentesFiltrados.sort(
         (a, b) => new Date(a.dataDeIncorporacao) - new Date(b.dataDeIncorporacao)
     );

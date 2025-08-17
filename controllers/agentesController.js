@@ -13,7 +13,7 @@ function getAllAgentes(req, res) {
             const agentes = agentesRepository.getByCargoAndSort(cargo, true);
             return res.json(agentes);
         } else {
-            throw new AppError(400, 'Parâmetro de ordenação inválido');
+            throw new AppError(400, 'Parâmetro de ordenação inválido.');
         }
     }
 
@@ -21,7 +21,7 @@ function getAllAgentes(req, res) {
         const agentes = agentesRepository.getByCargo(cargo);
 
         if (!agentes || agentes.length === 0) {
-            throw new AppError(404, 'Nenhum agente encontrado com o cargo especificado');
+            throw new AppError(404, 'Agente não encontrado.');
         }
 
         return res.json(agentes);
@@ -35,7 +35,7 @@ function getAllAgentes(req, res) {
             const agentes = agentesRepository.getSortedByDataDeIncorporacao(true);
             return res.json(agentes);
         } else {
-            throw new AppError(400, 'Parâmetro de ordenação inválido');
+            throw new AppError(400, 'Parâmetro de ordenação inválido.');
         }
     }
 
@@ -48,7 +48,7 @@ function getAgenteById(req, res) {
     const agente = agentesRepository.findById(id);
 
     if (!agente) {
-        throw new AppError(404, 'Nenhum agente encontrado para o id especificado');
+        throw new AppError(404, 'Agente não encontrado.');
     }
 
     res.json(agente);
@@ -64,7 +64,7 @@ function updateAgente(req, res) {
     const agente = agentesRepository.findById(id);
 
     if (!agente) {
-        throw new AppError(404, 'Nenhum agente encontrado para o id especificado');
+        throw new AppError(404, 'Agente não encontrado.');
     }
 
     const updatedAgente = agentesRepository.update(id, req.body);
@@ -77,7 +77,7 @@ function updatePartialAgente(req, res) {
     const agente = agentesRepository.findById(id);
 
     if (!agente) {
-        throw new AppError(404, 'Nenhum agente encontrado para o id especificado');
+        throw new AppError(404, 'Agente não encontrado.');
     }
 
     const updatedAgente = agentesRepository.updatePartial(id, req.body);
@@ -89,7 +89,7 @@ function deleteAgente(req, res) {
     const agente = agentesRepository.findById(id);
 
     if (!agente) {
-        throw new AppError(404, 'Nenhum agente encontrado para o id especificado');
+        throw new AppError(404, 'Agente não encontrado.');
     }
 
     agentesRepository.remove(id);

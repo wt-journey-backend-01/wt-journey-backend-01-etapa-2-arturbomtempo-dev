@@ -11,14 +11,14 @@ const validate = (schema, req) => {
 
     if (!result.success) {
         const errors = JSON.parse(result.error).map((err) => err.message);
-        throw new AppError(400, 'Parâmetros inválidos', errors || []);
+        throw new AppError(400, 'Parâmetros inválidos.', errors || []);
     }
 };
 
 const errorHandler = (err, req, res, next) => {
     const statusCode = err.statusCode || 500;
-    const message = err.message || 'Erro interno no servidor';
-    const errors = err.errors || [];
+    const message = err.message || 'Erro interno no servidor.';
+    const errors = (err.errors || []);
 
     res.status(statusCode).json({
         status: statusCode,
